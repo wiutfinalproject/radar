@@ -1,0 +1,63 @@
+<resources>
+    <string name="app_name">Radar</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!--connection errors-->
+    <string name="remote_server_returned_error">Serverda xatolik bor. Yana bir bor harakat qiling.</string>
+    <string name="check_internet_connection">Iltimos, internetni tekshirishing.</string>
+    <string name="error_reading_server_response">Serverdan qabul qilishda xatolik.</string>
+
+    <string name="log_out">Chiqish</string>
+    <string name="drawer_open">Menyuni ochish</string>
+    <string name="drawer_close">Menyuni yopish</string>
+    <string name="unable_to_load_map">Xaritani yuklashda xatolik.</string>
+    <string name="logged_out">Chiqib ketdingiz</string>
+    <string name="my_location">Mening joylashuvim</string>
+
+
+    <!--settings variables-->
+
+    <string name="language">Til</string>
+    <string name="notification">Eslatma</string>
+    <string name="notification_of">O\'chirish</string>
+    <string name="notification_on">Yoqish</string>
+    <string name="english">English</string>
+    <string name="russian">Русский</string>
+    <string name="uzbek">O\'zbek</string>
+    <string name="select_language">Tilni tanlash</string>
+    <string name="cancel">Bekor qilish</string>
+    <string name="settings">Sozlamalar</string>
+    <string name="login_with_google">Google orqali kirish</string>
+    <string name="gps_settings">GPS sozlamalar</string>
+    <string name="gps_not_enabled">GPS o`chirilgan</string>
+    <string name="logout_tittle">Dasturdan chiqmoqchimisiz?</string>
+    <string name="logout_massage">Barcha malumotlar o\'chirib yuboriladi</string>
+    <string name="about_us">Biz haqimizda</string>
+    <string name="about_us_text"><b>X-Point</b> ilovasi Toshkent shahar chorrahalarida joylashtirilgan yo`l harakati qoidalarini qayd qiluvchi kameralardan ogohlantiradi.\n\nX-Point loyihasi ishtirokchilari tomonidan kameralar boyicha ma`lumotlar har kuni yangilanadi va doimiy tarzda aniqlashtirib boriladi\n\nManzil: Toshkent shahar,\nYunusobod tumani, 15-61-19\n\nMail: <u>info@stc.uz</u></string>
+    <string name="tel_number"><b>Tel:</b> </string>
+    <string name="site"><b>Site:</b> <u>xpoint.uz</u></string>
+    <string name="app_language">O`zbek</string>
+    <string name="need_permission">"Ruxsat kerak"</string>
+    <string name="error_location">Joyni aniqlashda hatolik</string>
+
+    <string name="azs_2km">Avtozapravka 2 km oralig\'ida</string>
+    <string name="vul_2km">Vulkanizatsiya 2 km oralig\'ida</string>
+    <string name="azs_5km">Avtozapravka 5 km oralig\'ida</string>
+    <string name="vul_5km">Vulkanizatsiya 5 km oralig\'ida</string>
+    <string name="azs_all">Toshkent shahri Avtozapravkalari</string>
+    <string name="vul_all">Toshkent shahri Vulkanizatsiya servislari</string>
+
+
+    <string name="cameras">Kamera</string>
+    <string name="azs">Avtozapravka</string>
+    <string name="vul">Vulkanizatsiya</string>
+
+</resources>

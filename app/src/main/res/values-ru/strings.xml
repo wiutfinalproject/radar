@@ -37,15 +37,16 @@
     <string name="settings">Настройки</string>
     <string name="login_with_google">Войти через Google</string>
     <string name="gps_settings">Настройки GPS</string>
-    <string name="gps_not_enabled">GPS отключен</string>
-    <string name="logout_tittle">Хотите выйти из приложения?</string>
-    <string name="logout_massage">All information will be deleted</string>
+    <string name="gps_not_enabled">GPS отключен.</string>
+    <string name="logout_tittle">Хотите выйти с приложения?</string>
+    <string name="logout_massage">Все данные будут удалены</string>
     <string name="about_us">О нас</string>
     <string name="about_us_text"><b>X-Point</b> предупреждает о всех типах камер фиксирующих нарушения ПДД в пределах города Ташкента.\n\nИнформация по камерам обновляется ежедневно и постоянно корректируется специалистами X-Point.\n\nНаш адрес: г. Ташкент,\nЮнусабадский район, 15-61-19\n\nMail: <u>info@stc.uz</u></string>
     <string name="tel_number"><b>Тел:</b> </string>
     <string name="site"><b>Сайт:</b> xpoint.uz</string>
     <string name="app_language">Русский</string>
-    <string name="need_permission">"Need Permission"</string>
+    <string name="need_permission">"Требуется разрешение"</string>
+
     <string name="error_location">Ошибка при определении местоположения</string>
 
     <string name="azs_2km">Автозаправочные станции в радиусе 2 км</string>
@@ -58,4 +59,5 @@
     <string name="cameras">Камера</string>
     <string name="azs">Автозаправка</string>
     <string name="vul">Вулканизация</string>
+
 </resources>
