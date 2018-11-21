@@ -7,7 +7,7 @@
     tools:context=".activity.LoginActivity">
 
     <LinearLayout
-        android:visibility="gone"
+        android:visibility="visible"
         android:layout_centerInParent="true"
         android:orientation="vertical"
         android:paddingLeft="45dp"
@@ -32,6 +32,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:visibility="gone"
         android:layout_centerInParent="true"
         android:orientation="vertical"
         android:paddingLeft="45dp"
