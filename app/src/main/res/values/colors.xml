@@ -6,4 +6,8 @@
 
     <color name="editText">#6727c413</color>
     <color name="white">#ffffff</color>
+    
+    <color name="fullyTransparent">#00000000</color>
+    <color name="circle_back">#10000000</color>
+    <color name="transparent_gray">#ccaca9ac</color>
 </resources>

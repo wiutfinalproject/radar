@@ -2,9 +2,12 @@ package uz.radar.wiut.radar.db;
 
 import android.content.Context;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class CameraDb extends IDbCRUD<Object> {
+import uz.radar.wiut.radar.models.LocationObject;
+
+public class CameraDb extends IDbCRUD<LocationObject> {
 
     public CameraDb(Context context) {
         super(context);
@@ -16,17 +19,17 @@ public class CameraDb extends IDbCRUD<Object> {
     }
 
     @Override
-    public void insert(Object objectToInsert) {
+    public void insert(LocationObject objectToInsert) {
 
     }
 
     @Override
-    public Object getById(long id) {
+    public LocationObject getById(long id) {
         return null;
     }
 
     @Override
-    public List<Object> getAll() {
+    public ArrayList<LocationObject> getAll() {
         return null;
     }
 

@@ -7,12 +7,14 @@ public class LocationObject implements Serializable {
     private String name;
     private double lattitude;
     private double longitude;
+    private boolean isNear = false;
 
-    public LocationObject(int id, String name, double lattitude, double longitude) {
+    public LocationObject(int id, String name, double lattitude, double longitude, boolean isNear) {
         this.id = id;
         this.name = name;
         this.lattitude = lattitude;
         this.longitude = longitude;
+        this.isNear = isNear;
     }
 
     public LocationObject() {
@@ -50,4 +52,11 @@ public class LocationObject implements Serializable {
         this.longitude = longitude;
     }
 
+    public boolean isNear() {
+        return isNear;
+    }
+
+    public void setNear(boolean near) {
+        isNear = near;
+    }
 }

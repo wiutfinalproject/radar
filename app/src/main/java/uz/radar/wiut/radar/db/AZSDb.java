@@ -2,10 +2,13 @@ package uz.radar.wiut.radar.db;
 
 import android.content.Context;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class DbAZS extends IDbCRUD<Object> {
-    public DbAZS(Context context) {
+import uz.radar.wiut.radar.models.LocationObject;
+
+public class AZSDb extends IDbCRUD<LocationObject> {
+    public AZSDb(Context context) {
         super(context);
     }
 
@@ -20,17 +23,17 @@ public class DbAZS extends IDbCRUD<Object> {
     }
 
     @Override
-    public void insert(Object objectToInsert) {
+    public void insert(LocationObject objectToInsert) {
 
     }
 
     @Override
-    public Object getById(long id) {
+    public LocationObject getById(long id) {
         return null;
     }
 
     @Override
-    public List getAll() {
+    public ArrayList<LocationObject> getAll() {
         return null;
     }
 }
