@@ -1,15 +1,18 @@
 package uz.radar.wiut.radar.activity;
 
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.content.Intent;
+import android.util.Log;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.viksaa.sssplash.lib.activity.AwesomeSplash;
 import com.viksaa.sssplash.lib.cnst.Flags;
 import com.viksaa.sssplash.lib.model.ConfigSplash;
 
+import uz.radar.wiut.radar.MainActivity;
 import uz.radar.wiut.radar.R;
 import uz.radar.wiut.radar.utils.Const;
+
+//
 
 public class SplashActivity extends AwesomeSplash {
     @Override
@@ -54,9 +57,9 @@ public class SplashActivity extends AwesomeSplash {
 
     @Override
     public void animationsFinished() {
-
-        //transit to another activity here
-        //or do whatever you want
+        Log.d("[###]", "animationsFinished");
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
     }
 }
 
