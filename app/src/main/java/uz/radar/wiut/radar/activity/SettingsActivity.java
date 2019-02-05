@@ -95,7 +95,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                 onBackPressed();
                 break;
         }
-
     }
 
     private void setLanguage(String language) {
