@@ -22,9 +22,11 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
@@ -51,13 +53,16 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import uz.radar.wiut.radar.MainActivity;
 import uz.radar.wiut.radar.R;
+import uz.radar.wiut.radar.db.AZSDb;
 import uz.radar.wiut.radar.db.CameraDb;
 import uz.radar.wiut.radar.db.IDbCRUD;
+import uz.radar.wiut.radar.db.VulkanizatsiyaDb;
 import uz.radar.wiut.radar.models.LocationObject;
 import uz.radar.wiut.radar.utils.Const;
 
@@ -67,6 +72,11 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
 
     Context context;
     private ArrayList<LocationObject> cameraList, zapravkaList, vulkanizaciyaList = new ArrayList<>();
+    private ArrayList<LocationObject> zapravka_list_nearest_2km;
+    private ArrayList<LocationObject> zapravka_list_nearest_5km;
+    private ArrayList<LocationObject> vulkanizaciya_list_nearest_2km;
+    private ArrayList<LocationObject> vulkanizaciya_list_nearest_5km;
+
     private double myLastDistance = 0, angle = 0;
     private float bearing = 0, mDeclination;
     private float[] mRotationMatrix = new float[16];
@@ -89,6 +99,7 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
     private CoordinatorLayout coordinatorLayout;
     private AudioManager am;
     private View mapView;
+
 
     public String TAG = ">>> TAG";
 
@@ -117,6 +128,10 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
     }
 
     private void initialize(View view) {
+        cameraList = getFromDb(new CameraDb(context));
+        vulkanizaciyaList = getFromDb(new VulkanizatsiyaDb(context));
+        zapravkaList = getFromDb(new AZSDb(context));
+
         gps = view.findViewById(R.id.gps);
         addMarker = view.findViewById(R.id.addMarker);
         speed = view.findViewById(R.id.speed);
@@ -166,9 +181,10 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
         }
     }
 
-    private void getFromDb(IDbCRUD db) {
-        cameraList = (ArrayList<LocationObject>) db.getAll();
+    private ArrayList<LocationObject> getFromDb(IDbCRUD db) {
+        ArrayList<LocationObject> tmpList = (ArrayList<LocationObject>) db.getAll();
         db.close();
+        return tmpList;
     }
 
     public void setUpMap(final int status) {
@@ -176,8 +192,6 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
         SupportMapFragment mapFragment = SupportMapFragment.newInstance();
         fm.beginTransaction().add(R.id.mapFrame, mapFragment).commit();
         fm.executePendingTransactions();
-
-
         try {
             mapFragment.getMapAsync(new OnMapReadyCallback() {
                 @Override
@@ -191,7 +205,6 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
                                 switchToDefaultMode();
                             }
                         });
-
                         map.getUiSettings().setRotateGesturesEnabled(true);
                         map.getUiSettings().setIndoorLevelPickerEnabled(true);
                         map.getUiSettings().setCompassEnabled(false);
@@ -202,23 +215,17 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
                         } else {
                             maps.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), 14));
                         }
-
                         map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                             @Override
                             public void onMapLoaded() {
-                                getFromDb(new CameraDb(context));
-                                getFromDb(new CameraDb(context));
-                                getFromDb(new CameraDb(context));
-
                                 startRecording();
-
                                 moveMarker(currentLocation);
                                 if (status == 1) {
                                     putMarkers(map, R.drawable.ic_cameras_btn, cameraList);
                                 } else if (status == 2) {
-                                    putMarkers(map, R.drawable.ic_azs_btn, zapravkaList);
+                                    putZapravkaObjectMarkersToNearest(map, R.drawable.ic_azs_btn, zapravkaList);
                                 } else if (status == 3) {
-                                    putMarkers(map, R.drawable.ic_service_btn, vulkanizaciyaList);
+                                    putVulkanToNearest(map, R.drawable.ic_service_btn, vulkanizaciyaList);
                                 } else {
                                     putMarkers(map, R.drawable.ic_cameras_btn, cameraList);
                                 }
@@ -233,6 +240,135 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
             Log.d("Map", "Error while initializing Google map: " + ex);
         }
 
+    }
+
+    private void putVulkanToNearest(GoogleMap map, int ic_vulkan, ArrayList<LocationObject> vulkanizaciyaList) {
+        if (currentLocation != null && vulkanizaciyaList.size() > 0) {
+            vulkanizaciya_list_nearest_2km = new ArrayList<>();
+            vulkanizaciya_list_nearest_5km = new ArrayList<>();
+            for (int i = 0; i < vulkanizaciyaList.size(); i++) {
+                LocationObject vulkanizaciya = vulkanizaciyaList.get(i);
+                Location endLocation = new Location("");
+                endLocation.setLatitude(vulkanizaciya.getLattitude());
+                endLocation.setLongitude(vulkanizaciya.getLongitude());
+                double distance = currentLocation.distanceTo(endLocation);
+                if (distance <= 2000) {
+                    vulkanizaciya_list_nearest_2km.add(vulkanizaciya);
+                    vulkanizaciya_list_nearest_5km.add(vulkanizaciya);
+                } else if (distance <= 5000) {
+                    vulkanizaciya_list_nearest_5km.add(vulkanizaciya);
+                }
+            }
+            if (vulkanizaciya_list_nearest_2km.isEmpty()) {
+                if (vulkanizaciya_list_nearest_5km.isEmpty()) {
+                    for (int i = 0; i < vulkanizaciyaList.size(); i++) {
+                        LocationObject vulkanizaciya = vulkanizaciyaList.get(i);
+                        if (vulkanizaciya != null) {
+                            map.addMarker(new MarkerOptions()
+                                    .title(vulkanizaciya.getName())
+                                    .position(new LatLng(vulkanizaciya.getLattitude(), vulkanizaciya.getLongitude()))
+                                    .icon(BitmapDescriptorFactory.fromResource(ic_vulkan)));
+                        }
+                    }
+                    Snackbar snackbar = Snackbar.make(coordinatorLayout, R.string.vul_all, Snackbar.LENGTH_LONG);
+                    snackbar.getView().setBackgroundColor((ContextCompat.getColor(getContext(), R.color.colorPrimary)));
+                    snackbar.show();
+                } else {
+                    for (int i = 0; i < vulkanizaciya_list_nearest_5km.size(); i++) {
+                        LocationObject vulkanizaciya = vulkanizaciya_list_nearest_5km.get(i);
+                        if (vulkanizaciya != null) {
+                            map.addMarker(new MarkerOptions()
+                                    .title(vulkanizaciya.getName())
+                                    .position(new LatLng(vulkanizaciya.getLattitude(), vulkanizaciya.getLongitude()))
+                                    .icon(BitmapDescriptorFactory.fromResource(ic_vulkan)));
+                        }
+                    }
+                    Snackbar snackbar = Snackbar.make(coordinatorLayout, R.string.vul_5km, Snackbar.LENGTH_LONG);
+                    snackbar.getView().setBackgroundColor((ContextCompat.getColor(getContext(), R.color.colorPrimary)));
+                    snackbar.show();
+                }
+            } else {
+                for (int i = 0; i < vulkanizaciya_list_nearest_2km.size(); i++) {
+                    LocationObject vulkanizaciya = vulkanizaciya_list_nearest_2km.get(i);
+                    if (vulkanizaciya != null) {
+                        map.addMarker(new MarkerOptions()
+                                .title(vulkanizaciya.getName())
+                                .position(new LatLng(vulkanizaciya.getLattitude(), vulkanizaciya.getLongitude()))
+                                .icon(BitmapDescriptorFactory.fromResource(ic_vulkan)));
+                    }
+                }
+                Snackbar snackbar = Snackbar.make(coordinatorLayout, R.string.vul_2km, Snackbar.LENGTH_LONG);
+                snackbar.getView().setBackgroundColor((ContextCompat.getColor(getContext(), R.color.colorPrimary)));
+                snackbar.show();
+            }
+        } else {
+            showSettingsAlert();
+        }
+    }
+
+    private void putZapravkaObjectMarkersToNearest(GoogleMap map, int ic_azs_btn, ArrayList<LocationObject> zapravkaList) {
+        if (currentLocation != null && zapravkaList.size() > 0) {
+            zapravka_list_nearest_2km = new ArrayList<>();
+            zapravka_list_nearest_5km = new ArrayList<>();
+            for (int i = 0; i < zapravkaList.size(); i++) {
+                LocationObject zapravka = zapravkaList.get(i);
+                Location endLocation = new Location("");
+                endLocation.setLatitude(zapravka.getLattitude());
+                endLocation.setLongitude(zapravka.getLongitude());
+                double distance = currentLocation.distanceTo(endLocation);
+                if (distance <= 2000) {
+                    zapravka_list_nearest_2km.add(zapravka);
+                    zapravka_list_nearest_5km.add(zapravka);
+
+                } else if (distance <= 5000) {
+                    zapravka_list_nearest_5km.add(zapravka);
+                }
+            }
+            if (zapravka_list_nearest_2km.isEmpty()) {
+                if (zapravka_list_nearest_5km.isEmpty()) {
+                    for (int i = 0; i < zapravkaList.size(); i++) {
+                        LocationObject zapravka = zapravkaList.get(i);
+                        if (zapravka != null) {
+                            map.addMarker(new MarkerOptions()
+                                    .title(zapravka.getName())
+                                    .position(new LatLng(zapravka.getLattitude(), zapravka.getLongitude()))
+                                    .icon(BitmapDescriptorFactory.fromResource(ic_azs_btn)));
+                        }
+                    }
+                    Snackbar snackbar = Snackbar.make(coordinatorLayout, R.string.azs_all, Snackbar.LENGTH_LONG);
+                    snackbar.getView().setBackgroundColor((ContextCompat.getColor(getContext(), R.color.colorPrimary)));
+                    snackbar.show();
+                } else {
+                    for (int i = 0; i < zapravka_list_nearest_5km.size(); i++) {
+                        LocationObject zapravka = zapravka_list_nearest_5km.get(i);
+                        if (zapravka != null) {
+                            map.addMarker(new MarkerOptions()
+                                    .title(zapravka.getName())
+                                    .position(new LatLng(zapravka.getLattitude(), zapravka.getLongitude()))
+                                    .icon(BitmapDescriptorFactory.fromResource(ic_azs_btn)));
+                        }
+                    }
+                    Snackbar snackbar = Snackbar.make(coordinatorLayout, R.string.azs_5km, Snackbar.LENGTH_LONG);
+                    snackbar.getView().setBackgroundColor((ContextCompat.getColor(getContext(), R.color.colorPrimary)));
+                    snackbar.show();
+                }
+            } else {
+                for (int i = 0; i < zapravka_list_nearest_2km.size(); i++) {
+                    LocationObject zapravka = zapravka_list_nearest_2km.get(i);
+                    if (zapravka != null) {
+                        map.addMarker(new MarkerOptions()
+                                .title(zapravka.getName())
+                                .position(new LatLng(zapravka.getLattitude(), zapravka.getLongitude()))
+                                .icon(BitmapDescriptorFactory.fromResource(ic_azs_btn)));
+                    }
+                }
+                Snackbar snackbar = Snackbar.make(coordinatorLayout, R.string.azs_2km, Snackbar.LENGTH_LONG);
+                snackbar.getView().setBackgroundColor((ContextCompat.getColor(getContext(), R.color.colorPrimary)));
+                snackbar.show();
+            }
+        } else {
+            showSettingsAlert();
+        }
     }
 
     private void switchToDefaultMode() {
@@ -261,7 +397,6 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
             }
         }
     }
-
 
     @Override
     public void onAttach(Context context) {
@@ -298,6 +433,12 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
     @Override
     public void onDetach() {
         super.onDetach();
+        if (gpsTimer != null) {
+            gpsTimer.cancel();
+            gpsTimer.purge();
+            gpsTimer = null;
+        }
+
     }
 
     @Override
@@ -329,9 +470,7 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
 
             if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !gpsOn) {
                 showSettingsAlert();
-
             } else {
-
                 listener = new LocationListener() {
                     @Override
                     public void onLocationChanged(Location location) {
@@ -370,18 +509,25 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
                     gpsTimer.scheduleAtFixedRate(new TimerTask() {
                         @Override
                         public void run() {
+                            if (gpsTimer == null) {
+                                return;
+                            }
                             final Location location = getBestLocation();
                             if (location != null && !isMapTouched) {
                                 MainActivity mainActivity = (MainActivity) context;
                                 mainActivity.runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
-
                                         moveMarker(location);
                                         calculateDistance(location);
                                     }
                                 });
                             }
+                        }
+
+                        @Override
+                        public boolean cancel() {
+                            return super.cancel();
                         }
                     }, 0, 10000);
                 }
@@ -414,9 +560,7 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
             } else {
                 speed.setVisibility(View.GONE);
             }
-
             speed.setText(Math.round(userSpeed) + "");
-
             // currentLocation = location;
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             if (marker == null) {
@@ -424,29 +568,24 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
                         title(getResources().getString(R.string.my_location)).position(latLng)
                         .flat(true).anchor(0.5f, 0.5f)
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car)));
-
             } else {
                 marker.setPosition(latLng);
             }
             CameraPosition currentPlace = new CameraPosition.Builder()
                     .target(new LatLng(location.getLatitude(), location.getLongitude()))
                     .tilt(55f).zoom(18f).build();
-
             CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(currentPlace);
-
             if (first) {
                 maps.animateCamera(cameraUpdate);
                 first = false;
             } else {
                 updateCamera(bearing);
             }
-
             if (mCircle == null) {
                 drawMarkerWithCircle(latLng);
             } else {
                 updateMarkerWithCircle(latLng);
             }
-
         } else if (location != null && isMapTouched) {
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             if (marker == null) {
@@ -454,7 +593,6 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
                         title(getResources().getString(R.string.my_location)).position(latLng)
                         .flat(true).anchor(0.5f, 0.5f)
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_car)));
-
             } else {
                 marker.setPosition(latLng);
             }
@@ -533,7 +671,6 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
             } else
                 road.setNear(false);
         }
-
     }
 
 
@@ -546,7 +683,6 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
             gps_enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         } catch (Exception ex) {
         }
-
         try {
             network_enabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
         } catch (Exception ex) {
@@ -596,7 +732,6 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
                 dialog.cancel();
             }
         });
-
         // Showing Alert Message
         alertDialog.show();
     }
@@ -604,20 +739,15 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-
         if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
             SensorManager.getRotationMatrixFromVector(
                     mRotationMatrix, event.values);
             float in = (float) Math.acos(mRotationMatrix[8]);
             float[] orientation = new float[3];
-
             SensorManager.getOrientation(mRotationMatrix, orientation);
-
             if (Math.abs(Math.toDegrees(orientation[0]) - angle) > 0.8) {
-
                 int orientationMode = getResources().getConfiguration().orientation;
                 int rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
-
                 if (orientationMode == Configuration.ORIENTATION_LANDSCAPE
                         && (rotation == Surface.ROTATION_0
                         || rotation == Surface.ROTATION_90)) {
@@ -650,16 +780,13 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
                 if (marker.getPosition() != null) {
                     CameraPosition pos = CameraPosition.builder(oldPos).target(marker.getPosition()).bearing(bearing).tilt(55.0f).zoom(18.0f).build();
                     CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(pos);
-
                     if (focus) {
                         maps.animateCamera(cameraUpdate, 800, null);
                         focus = false;
                     } else
                         maps.moveCamera(cameraUpdate);
-
                 }
             }
-
         }
     }
 
@@ -672,9 +799,7 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
                     if (currentLocation != null) {
                         isMapTouched = false;
                         focus = true;
-
                         moveMarker(currentLocation);
-
                         gps.setImageResource(R.drawable.ic_track_on);
                         mCircle.setVisible(true);
                     } else {
@@ -694,57 +819,35 @@ public class MapFragment extends Fragment implements Const, SensorEventListener,
                     } else {
                         showSettingsAlert();
                     }
-
-
                 }
                 break;
             case R.id.addMarker:
                 markerLayout.setVisibility(View.VISIBLE);
-
                 break;
             case R.id.close_marker_layout:
                 markerLayout.setVisibility(View.GONE);
                 break;
-
             case R.id.camera_markers:
-
                 marker = null;
                 mCircle = null;
-
                 switchToDefaultMode();
-
                 setUpMap(1);
-
                 markerLayout.setVisibility(View.GONE);
-
                 break;
-
             case R.id.azs_markers:
-
                 marker = null;
                 mCircle = null;
-
                 switchToDefaultMode();
-
                 setUpMap(2);
-
                 markerLayout.setVisibility(View.GONE);
-
                 break;
-
             case R.id.vulk_markers:
-
                 marker = null;
                 mCircle = null;
-
                 switchToDefaultMode();
-
                 setUpMap(3);
-
                 markerLayout.setVisibility(View.GONE);
-
                 break;
-
         }
     }
 }

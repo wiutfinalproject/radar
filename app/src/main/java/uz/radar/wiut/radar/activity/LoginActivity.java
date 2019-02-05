@@ -108,6 +108,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void login(View view) {
+        if (!et_email.getText().toString().trim().isEmpty() && !et_password.getText().toString().trim().isEmpty())
         mAuth.signInWithEmailAndPassword(et_email.getText().toString(), et_password.getText().toString())
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -132,6 +133,7 @@ public class LoginActivity extends AppCompatActivity {
     private void successLogin() {
         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
         startActivity(intent);
+        finish();
 
     }
 

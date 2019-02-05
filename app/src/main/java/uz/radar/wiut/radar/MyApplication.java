@@ -19,7 +19,7 @@ public class MyApplication extends Application {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        MultiDex.install(this);
+        MultiDex.install(getBaseContext());
     }
 
     public boolean initDefaults(String language) {
@@ -40,6 +40,4 @@ public class MyApplication extends Application {
         configuration.locale = locale;
         getBaseContext().getResources().updateConfiguration(configuration, getBaseContext().getResources().getDisplayMetrics());
     }
-
-
 }

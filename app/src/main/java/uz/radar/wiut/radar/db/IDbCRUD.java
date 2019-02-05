@@ -28,7 +28,7 @@ public abstract class IDbCRUD<T> {
         db.close();
     }
 
-    public abstract void insert(T objectToInsert);
+    public abstract long insert(T objectToInsert);
 
     public abstract T getById(long id);
 

@@ -34,6 +34,11 @@ public interface Const {
     Integer VISIBLE_SPEED = 10;
 
     String HOST = "firebase";
+    String FB_VERSION= "v1/";
+    String AZSFB = FB_VERSION+"azs";
+    String CAMERASFB = FB_VERSION + "cameras";
+    String VULKANSFB = FB_VERSION + "vulkans";
+
 
     int LOCAION_UPDATING_TIME = 1000*2;
     String UTF_8 = "UTF-8";

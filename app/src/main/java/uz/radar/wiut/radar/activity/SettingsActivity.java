@@ -22,7 +22,7 @@ import uz.radar.wiut.radar.R;
 import uz.radar.wiut.radar.utils.Const;
 import uz.radar.wiut.radar.utils.CustomUtils;
 
-public class SettingsActivity extends AppCompatActivity implements View.OnClickListener,Const {
+public class SettingsActivity extends AppCompatActivity implements View.OnClickListener, Const {
 
     private LinearLayout language;
     private ToggleButton notification;
@@ -45,6 +45,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     private void checkLanguage() {
         if (UZBEK.equals(CustomUtils.getSharedPreferencesString(this, LANGUAGE))) {
             CustomUtils.getSharedPreferencesString(this, LANGUAGE);
+
             Configuration conf = getResources().getConfiguration();
             conf.locale = new Locale(UZBEK);
             DisplayMetrics metrics = new DisplayMetrics();
@@ -52,6 +53,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             Resources resources = new Resources(getAssets(), metrics, conf);
         } else if (RUSSIAN.equals(CustomUtils.getSharedPreferencesString(SettingsActivity.this, LANGUAGE))) {
             CustomUtils.getSharedPreferencesString(this, LANGUAGE);
+
             Configuration conf = getResources().getConfiguration();
             conf.locale = new Locale(RUSSIAN);
             DisplayMetrics metrics = new DisplayMetrics();
@@ -82,17 +84,18 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             case R.id.notification:
                 if (notification.isChecked()) {
                     Toast.makeText(SettingsActivity.this, "ON", Toast.LENGTH_SHORT).show();
-                    CustomUtils.putSharedPrefBoolean(SettingsActivity.this, NOTIFICATION,true);
-                }
-                else {
+                    CustomUtils.putSharedPrefBoolean(SettingsActivity.this, NOTIFICATION, true);
+                } else {
                     Toast.makeText(SettingsActivity.this, "OFF", Toast.LENGTH_SHORT).show();
-                    CustomUtils.putSharedPrefBoolean(SettingsActivity.this, NOTIFICATION,false);
+                    CustomUtils.putSharedPrefBoolean(SettingsActivity.this, NOTIFICATION, false);
+
                 }
                 break;
             case R.id.back_image:
                 onBackPressed();
                 break;
         }
+
     }
 
     private void setLanguage(String language) {
@@ -100,7 +103,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             return;
         }
         if (app.initDefaults(language)) {
-            CustomUtils.putSharedPrefString(this,LANGUAGE,language);
+            CustomUtils.putSharedPrefString(this, LANGUAGE, language);
             refreshUI();
         }
     }
