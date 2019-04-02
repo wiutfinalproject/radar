@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -27,16 +28,19 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     private LinearLayout language;
     private ToggleButton notification;
     private MyApplication app;
+//    private ImageView iv;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        checkLanguage();
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+        checkLanguage();
 
         language = (LinearLayout) findViewById(R.id.language);
         language.setOnClickListener(this);
-        findViewById(R.id.back_image).setOnClickListener(this);
+//        iv = findViewById(R.id.back_image);
+//        iv.setOnClickListener(this);
         notification = (ToggleButton) findViewById(R.id.notification);
 
         app = (MyApplication) getApplication();
@@ -90,9 +94,6 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
                     CustomUtils.putSharedPrefBoolean(SettingsActivity.this, NOTIFICATION, false);
 
                 }
-                break;
-            case R.id.back_image:
-                onBackPressed();
                 break;
         }
     }
